@@ -4,7 +4,13 @@ class window.Hand extends Backbone.Collection
 
   initialize: (array, @deck, @isDealer) ->
 
-  hit: -> @add(@deck.pop()).last()
+  hit: ->
+    @add(@deck.pop()).last()
+    @bustCheck()
+
+  stand: ->
+    finalScore = @scores()
+    @completeRound()
 
   scores: ->
     # The scores are an array of potential scores.
@@ -16,4 +22,13 @@ class window.Hand extends Backbone.Collection
     score = @reduce (score, card) ->
       score + if card.get 'revealed' then card.get 'value' else 0
     , 0
-    if hasAce then [score, score + 10] else [score]
+    if (hasAce && score + 10 <= 21) then [score, score + 10] else [score]
+   # if score > 21 then bust = true
+   # if bust then alert 'fail'
+
+  bustCheck: ->
+    currentScore = @scores()
+    if currentScore > 21 then @trigger 'bust'
+
+  completeRound: ->
+    
